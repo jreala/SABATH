@@ -2,23 +2,24 @@
 
 public class BattleController : MonoBehaviour
 {
-    public GameObject smallEnemy;
-    public GameObject mediumEnemy;
-    public GameObject largeEnemy;
+    public GameObject enemyObject;
 
     public int smallSpawner     = 0;
     public int mediumSpawner    = 0;
     public int largeSpawner     = 0;
 
-    public float spawnTime = 3f;
+    public int maxOnscreen      = 20;
+    public float spawnTime      = 3f;
 
     struct SpawnerInternals_s
     {
-        public int smallSpawnCounter;
-        public int mediumSpawnCounter;
-        public int largeSpawnCounter;
-        public GameObject[] spawnedObjects;
-        public int objectsCount;
+        public int smallSpawnCounter;           //Tracks Small enemy objects spawned
+        public int mediumSpawnCounter;          //Tracks Medium enemy objects spawned
+        public int largeSpawnCounter;           //Tracks Large enemy objects spawned
+        public GameObject[] spawnedObjects;     //List of objects spawned
+        public int curObjects;                  //Current objects spawned
+        public int spawnObjects;                //Total objects to be spawned
+        public int maxObjects;                  //Maximum spawned objects allowed
     };
     private SpawnerInternals_s spawnData;
 
@@ -34,8 +35,7 @@ public class BattleController : MonoBehaviour
     private void Start()
     {
         InitializeSpawnCounters();
-
-        InvokeRepeating("Spawn", spawnTime, spawnTime);
+        Spawn();
     }
 
     void InitializeSpawnCounters()
@@ -43,34 +43,50 @@ public class BattleController : MonoBehaviour
         spawnData.smallSpawnCounter     = smallSpawner;
         spawnData.mediumSpawnCounter    = mediumSpawner;
         spawnData.largeSpawnCounter     = largeSpawner;
+        spawnData.spawnObjects          = smallSpawner + mediumSpawner + largeSpawner;
+
+        spawnData.curObjects            = 0;
+        spawnData.spawnedObjects        = new GameObject[maxOnscreen];
+        spawnData.maxObjects            = maxOnscreen;
     }
 
+    //Spawns in enemy objects, but will need to be repositioned and then activated
+    //Use spawnData.spawnedObjects array
     void Spawn()
     {
-        //TODO: Should also add feature so we can scale the enemy's size 
-        //so we can re-use the same enemy but scale their size alongside with HP
-
-        //TODO: Tweak spawnPos based off the GameObject
         Vector3 spawnPos = new Vector3(13, 0, 0);
 
-        if (spawnData.smallSpawnCounter-- > 0)
+        while (spawnData.curObjects < spawnData.spawnObjects)
         {
-            Debug.Log($"Spawn small enemy ({spawnData.smallSpawnCounter} left)");
-            spawnData.spawnedObjects[spawnData.objectsCount++] = Instantiate(smallEnemy, spawnPos, Quaternion.Euler(0, 0, 0)) as GameObject;
-        }
-        else if (spawnData.mediumSpawnCounter-- > 0)
-        {
-            Debug.Log($"Spawn medium enemy ({spawnData.mediumSpawnCounter} left)");
-            spawnData.spawnedObjects[spawnData.objectsCount++] = Instantiate(mediumEnemy, spawnPos, Quaternion.Euler(0, 0, 0)) as GameObject;
-        }
-        else if (spawnData.largeSpawnCounter-- > 0)
-        {
-            Debug.Log($"Spawn large enemy ({spawnData.largeSpawnCounter} left)");
-            spawnData.spawnedObjects[spawnData.objectsCount++] = Instantiate(largeEnemy, spawnPos, Quaternion.Euler(0, 0, 0)) as GameObject;
+            if (spawnData.smallSpawnCounter-- > 0)
+            {
+                Debug.Log($"Spawn small enemy ({spawnData.smallSpawnCounter} left)");
+                spawnData.spawnedObjects[spawnData.curObjects] = Instantiate(enemyObject, spawnPos, Quaternion.Euler(0, 0, 0)) as GameObject;
+                spawnData.spawnedObjects[spawnData.curObjects].transform.parent = transform;
+                spawnData.spawnedObjects[spawnData.curObjects].GetComponent<BaseEnemy>().type = EnemyType.Small;
+            }
+            else if (spawnData.mediumSpawnCounter-- > 0)
+            {
+                Debug.Log($"Spawn medium enemy ({spawnData.mediumSpawnCounter} left)");
+                spawnData.spawnedObjects[spawnData.curObjects] = Instantiate(enemyObject, spawnPos, Quaternion.Euler(0, 0, 0)) as GameObject;
+                spawnData.spawnedObjects[spawnData.curObjects].transform.parent = transform;
+                spawnData.spawnedObjects[spawnData.curObjects].GetComponent<BaseEnemy>().type = EnemyType.Medium;
+            }
+            else if (spawnData.largeSpawnCounter-- > 0)
+            {
+                Debug.Log($"Spawn large enemy ({spawnData.largeSpawnCounter} left)");
+                spawnData.spawnedObjects[spawnData.curObjects] = Instantiate(enemyObject, spawnPos, Quaternion.Euler(0, 0, 0)) as GameObject;
+                spawnData.spawnedObjects[spawnData.curObjects].transform.parent = transform;
+                spawnData.spawnedObjects[spawnData.curObjects].GetComponent<BaseEnemy>().type = EnemyType.Large;
+            }
+            else
+            {
+                Debug.LogError("Invalid enemy type to spawn");
+            }
+            spawnData.curObjects++;
         }
     }
-
-    //Could pass the GameObject* to disable the GameObject if enough small/medium/large enemies defeated?
+    
     public void OnEnemyDeath(EnemyModel model)
     {
         Debug.Log("On Enemy Death Hit");

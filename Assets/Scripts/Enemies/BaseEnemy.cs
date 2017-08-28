@@ -2,16 +2,32 @@
 
 public class BaseEnemy : MonoBehaviour
 {
-    public GameObject battleController;
+    private GameObject battleController;
 
     public EnemyType type;
     public int health;
     public int expValue;
-    public float speed = 1.0f;
+    public float speed = 3f;
 
     private void Start()
     {
-        battleController = GameObject.Find("BattleController");
+        //gameObject.SetActive(false);
+        battleController = this.transform.parent.gameObject;
+
+        switch (type)
+        {
+            case EnemyType.Small:
+                break;
+            case EnemyType.Medium:
+                transform.localScale += new Vector3(1, 1, 0);
+                break;
+            case EnemyType.Large:
+                transform.localScale += new Vector3(3, 3, 0);
+                break;
+            default:
+                Debug.LogError($"Unknown size for type: {type}");
+                break;
+        }
     }
 
     private void Update()
@@ -21,6 +37,8 @@ public class BaseEnemy : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        float posVariance = Random.Range(0.0f, 10.0f);
+
         if (collision.gameObject.tag == "Player")
         {
             health -= collision.gameObject.GetComponentInParent<PlayableCharacter>().AttackValue;
@@ -32,8 +50,7 @@ public class BaseEnemy : MonoBehaviour
                     experienceGain = expValue
                 });
 
-                transform.position = new Vector3(13, 0, 0);
-                //gameObject.SetActive(false);
+                transform.position = new Vector3(13 + posVariance, 0, 0);
             }
         }
     }
