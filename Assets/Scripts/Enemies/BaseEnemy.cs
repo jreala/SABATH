@@ -7,26 +7,41 @@ public class BaseEnemy : MonoBehaviour
     public EnemyType type;
     public int health;
     public int expValue;
+    public float speed = 1.0f;
+
+    private void Start()
+    {
+        battleController = GameObject.Find("BattleController");
+    }
+
+    private void Update()
+    {
+        transform.Translate(-Vector3.right * speed * Time.deltaTime);
+    }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        health -= collision.gameObject.GetComponentInParent<PlayableCharacter>().AttackValue;
-        if(health < 0)
+        if (collision.gameObject.tag == "Player")
         {
-            battleController.SendMessage("OnEnemyDeath", new EnemyModel
+            health -= collision.gameObject.GetComponentInParent<PlayableCharacter>().AttackValue;
+            if (health < 0)
             {
-                enemyType = type,
-                experienceGain = expValue
-            });
+                battleController.SendMessage("OnEnemyDeath", new EnemyModel
+                {
+                    enemyType = type,
+                    experienceGain = expValue
+                });
 
-            gameObject.SetActive(false);
+                transform.position = new Vector3(13, 0, 0);
+                //gameObject.SetActive(false);
+            }
         }
     }
 
     public void OnDamageTaken(int damage)
     {
         health -= damage;
-        if(health < 0)
+        if (health < 0)
         {
             battleController.SendMessage("OnEnemyDeath", new EnemyModel
             {
