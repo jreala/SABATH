@@ -8,6 +8,7 @@ public class AttackHitbox : MonoBehaviour
 
     public void OnTouchDown(object args)
     {
+        Debug.Log("Swinging");
         if (CanSwing)
         {
             CanSwing = false;

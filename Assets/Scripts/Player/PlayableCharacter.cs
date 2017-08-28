@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections;
 
 /// <summary>
 /// Playable Character.
@@ -16,15 +17,18 @@ public class PlayableCharacter : MonoBehaviour, ICharacter
     private float base_exp = 25f;
     private float factor = 1.1f;
 
+    [SerializeField]
+    private GameObject attackHitbox;
+
     void Awake()
     {
-        Debug.Log("Hit");
         ToNextLevel = CalculateExperienceToLevel();
     }
 
     public void Attack()
     {
         Debug.Log("I'm Attacking!!!");
+        StartCoroutine("Swing");
     }
 
     public void Ultimate()
@@ -52,5 +56,12 @@ public class PlayableCharacter : MonoBehaviour, ICharacter
     public double CalculateExperienceToLevel()
     {
         return Math.Floor(base_exp * Math.Pow(Level + 1, factor));
+    }
+
+    IEnumerator Swing()
+    {
+        attackHitbox.SetActive(true);
+        yield return new WaitForSeconds(0.1f);
+        attackHitbox.SetActive(false);
     }
 }

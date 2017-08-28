@@ -9,6 +9,7 @@ public class BattleController : MonoBehaviour
 
     public void OnEnemyDeath(EnemyModel model)
     {
+        Debug.Log("On Enemy Death Hit");
         switch (model.enemyType)
         {
             case EnemyType.Small:
