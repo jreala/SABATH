@@ -25,6 +25,11 @@ public class PlayableCharacter : MonoBehaviour, ICharacter
         ToNextLevel = CalculateExperienceToLevel();
     }
 
+    private void FixedUpdate()
+    {
+        transform.position += transform.right * Time.deltaTime * MovementSpeed;
+    }
+
     public void Attack()
     {
         Debug.Log("I'm Attacking!!!");
@@ -64,4 +69,5 @@ public class PlayableCharacter : MonoBehaviour, ICharacter
         yield return new WaitForSeconds(0.1f);
         attackHitbox.SetActive(false);
     }
+    
 }
