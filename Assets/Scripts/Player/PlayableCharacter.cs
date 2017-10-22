@@ -69,5 +69,4 @@ public class PlayableCharacter : MonoBehaviour, ICharacter
         yield return new WaitForSeconds(0.1f);
         attackHitbox.SetActive(false);
     }
-    
 }
